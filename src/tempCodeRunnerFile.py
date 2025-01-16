@@ -1,1 +1,1 @@
-collidepoint
+all_sprites

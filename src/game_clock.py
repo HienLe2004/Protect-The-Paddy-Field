@@ -2,26 +2,24 @@ from setting import *
 
 class Game_Clock(object):
     def __init__(self):
-        self.duration = 30
-        self.time = self.duration
-        self.start = False
+        self.duration = 10  # Tổng thời gian trò chơi (giây)
+        self.start_ticks = pygame.time.get_ticks()  # Lưu thời điểm bắt đầu
         self.font = pygame.font.Font("freesansbold.ttf", 32)
-        self.text = self.font.render(str(int(self.time)), True, (0, 0, 0))
-        self.rect = self.text.get_frect(midtop = (SCREEN_WIDTH/2, 10))
-    def start_clock(self):
-        self.time = self.duration
-        self.start = True
+        self.text = self.font.render(str(self.duration), True, (0, 0, 0))
+        self.rect = self.text.get_rect(midtop=(SCREEN_WIDTH / 2, 10))
+        self.time_up = False
+
     def draw(self, surf):
         surf.blit(self.text, self.rect)
-
-    def update(self, dt):
-        if (self.start):
-            self.time -= dt
-            print(self.time)
-            if (self.time <= 0):
-                print("end")
-                self.start = False
+    
+    def update(self):
+        elapsed_time = (pygame.time.get_ticks() - self.start_ticks) / 1000  # Tính thời gian đã trôi qua (giây)
+        remaining_time = max(0, self.duration - int(elapsed_time))
         
-        self.text = self.font.render(str(int(self.time)), True, (0, 0, 0))
-        self.rect = self.text.get_frect(midtop = (SCREEN_WIDTH/2, 10))
+        if remaining_time == 0:
+            #print("end")
+            self.time_up = True
+            
+        self.text = self.font.render(str(remaining_time), True, (0, 0, 0))
+        self.rect = self.text.get_rect(midtop=(SCREEN_WIDTH / 2, 10))
 

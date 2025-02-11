@@ -4,6 +4,50 @@ from rice_plant import RicePlant
 from score import Score
 from game_clock import Game_Clock
 
+class Game_Over:
+    def __init__(self, screen, game_state_manager, score):
+        self.screen = screen
+        self.game_state_manager = game_state_manager
+        self.score = score
+        self.font = pygame.font.Font("freesansbold.ttf", 36)
+        self.buttons = {
+            "menu": pygame.Rect(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2, 200, 50),
+            "replay": pygame.Rect(SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2 + 70, 200, 50)
+        }
+        self.cursor_img = pygame.image.load('images/slingshot.png').convert_alpha()
+
+    def draw(self):
+        self.screen.fill((50, 50, 50))
+        score_text = self.font.render(f"HIT: {self.score.hit} MISS: {self.score.miss}", True, (255, 255, 255))
+        self.screen.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, SCREEN_HEIGHT // 3))
+        
+        for key, rect in self.buttons.items():
+            pygame.draw.rect(self.screen, (200, 200, 200), rect)
+            button_text = self.font.render(key.upper(), True, (0, 0, 0))
+            self.screen.blit(button_text, (rect.x + 50, rect.y + 10))
+        
+        cursor_pos = pygame.mouse.get_pos()
+        cursor_rect = self.cursor_img.get_rect(center=cursor_pos)
+        self.screen.blit(self.cursor_img, cursor_rect)
+        pygame.display.flip()
+
+    def run(self, dt):
+        running = True
+        pygame.mouse.set_visible(False)
+        while running:
+            self.draw()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.game_state_manager.set_state('quit')
+                    running = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if self.buttons["menu"].collidepoint(event.pos):
+                        self.game_state_manager.set_state('main_menu')
+                        running = False
+                    elif self.buttons["replay"].collidepoint(event.pos):
+                        self.game_state_manager.set_state('gameplay')
+                        running = False
+
 class Game_Play:
     def __init__(self,screen,game_state_manager):
         # setup
@@ -32,6 +76,8 @@ class Game_Play:
         self.slingshot = Slingshot(self.player_sprites)
         self.score = Score()
         self.game_clock = Game_Clock()
+        
+        
 
     def run(self, dt):
         while self.running:
@@ -39,9 +85,6 @@ class Game_Play:
                 if event.type == pygame.QUIT:
                     self.running = False
                     self.game_state_manager.set_state('quit')
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE and not self.game_clock.start:
-                        self.game_clock.start_clock()
                 if event.type == pygame.MOUSEBUTTONDOWN and self.slingshot.can_shoot:
                     self.slingshot.shoot()
                     hit = False
@@ -59,8 +102,11 @@ class Game_Play:
                         # print("miss")
                         self.score.set_miss(self.score.miss + 1)
                             
-
-            self.game_clock.update(dt)
+            
+            self.game_clock.update()
+            if self.game_clock.time_up:
+                self.game_state_manager.set_state('game_over')
+                self.running = False
             self.all_sprites.update(dt)
             self.player_sprites.update(dt)
             
@@ -85,31 +131,35 @@ class Main_Menu():
 
 class Game():
     def __init__(self):
-        self.game_state_manager = Game_State_Manager('gameplay')
         pygame.init()
+        self.game_state_manager = Game_State_Manager('gameplay')
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption('Protect The Paddy Field')
         pygame.display.set_icon(pygame.image.load('images/rice.png'))
         self.clock = pygame.time.Clock() 
+        self.game_play = Game_Play(self.screen, self.game_state_manager)
+        self.main_menu = Main_Menu(self.screen, self.game_state_manager)
+        self.game_over = Game_Over(self.screen, self.game_state_manager, self.game_play.score)
+        self.states = {'gameplay':self.game_play, 'main_menu':self.main_menu, 'game_over': self.game_over}
         self.running = True
         self.background_image = pygame.image.load('images/background.jpg')
         self.background_image = pygame.transform.scale(self.background_image, self.screen.get_size())
-        self.game_play = Game_Play(self.screen, self.game_state_manager)
-        self.main_menu = Main_Menu(self.screen, self.game_state_manager)
-        self.states = {'gameplay':self.game_play, 'main_menu':self.main_menu}
-
+        
     def run(self):
         while self.running:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-            dt = self.clock.tick(60) / 1000
-
-            if (self.game_state_manager.get_state() is 'quit'):
+            dt = self.clock.tick(60) / 1000 
+            current_state = self.game_state_manager.get_state()
+            if current_state == 'quit':
                 self.running = False
-            else:
-                self.states[self.game_state_manager.get_state()].run(dt)
-
+            elif current_state == 'gameplay':
+                self.states['gameplay'] = Game_Play(self.screen, self.game_state_manager)
+                self.states['gameplay'].run(dt)
+            elif current_state == 'game_over':
+                score = self.states['gameplay'].score
+                self.states['game_over'] = Game_Over(self.screen, self.game_state_manager, score)
+                self.states['game_over'].run(dt)
+            elif current_state == 'main_menu':
+                self.states['main_menu'].run()
         pygame.quit()
 
 class Game_State_Manager():

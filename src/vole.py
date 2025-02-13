@@ -5,6 +5,7 @@ class Vole(pygame.sprite.Sprite):
     def __init__(self, *groups, x, y):
         super().__init__(*groups)
         self.image = Vole.vole_image
+        self.image = pygame.transform.rotozoom(self.image, 0, 2)
         self.x = x
         self.y = y
         self.rect = self.image.get_frect(center = (self.x, self.y))

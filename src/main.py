@@ -102,7 +102,6 @@ class Game_Play:
                         # print("miss")
                         self.score.set_miss(self.score.miss + 1)
                             
-            
             self.game_clock.update()
             if self.game_clock.time_up:
                 self.game_state_manager.set_state('game_over')

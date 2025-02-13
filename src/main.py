@@ -7,7 +7,7 @@ from score import Score
 from game_clock import Game_Clock
 from play_button import PlayButton
 from home_button import HomeButton
-
+from quit_button import QuitButton
 from home_button import HomeButton  # Make sure to import the HomeButton class
 
 class Game_Play:
@@ -77,7 +77,6 @@ class Game_Play:
 		                    self.play_vole_dead_sound()
 		                else:
 		                    self.score.set_miss(self.score.miss + 1)
-
             self.game_clock.update(dt)
             self.all_sprites.update(dt)
             self.player_sprites.update(dt)
@@ -100,6 +99,7 @@ class Main_Menu:
         self.game_state_manager = game_state_manager
         # Initialize the PlayButton with position and size for triangle
         self.play_button = PlayButton(SCREEN_WIDTH // 2 + 150, SCREEN_HEIGHT // 2 - 25, 100, self.start_game)
+        self.quit_button = QuitButton(SCREEN_WIDTH // 2 + 150, SCREEN_HEIGHT // 2 +100, 100, 50, 'Quit', self.quit_game)
         pygame.mouse.set_visible(True)  # Make the mouse visible
         
         # Load background image
@@ -119,10 +119,13 @@ class Main_Menu:
         self.screen.blit(title_surface, title_rect)  # Draw the title
         
         # Draw the play button
-        self.play_button.draw(self.screen)  # Draw the triangle play button
-
+        self.play_button.draw(self.screen)     
+        self.quit_button.draw(self.screen) 
+		
     def start_game(self):
         self.game_state_manager.set_state('gameplay')  # Change state to gameplay
+    def quit_game(self):
+        self.game_state_manager.set_state('quit')
 
     def run(self):
         self.draw()
@@ -131,7 +134,8 @@ class Main_Menu:
                 self.game_state_manager.set_state('quit')
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:  # Left mouse button
-                    self.play_button.is_clicked(event.pos)  # Check if the button is clicked
+                    self.play_button.is_clicked(event.pos)
+                    self.quit_button.is_clicked(event.pos)
 class Game:
     def __init__(self):
         self.game_state_manager = Game_State_Manager('main_menu')

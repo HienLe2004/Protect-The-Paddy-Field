@@ -19,9 +19,9 @@ class Game_Play:
         self.running = True
         
         # sounds
-        self.vole_sounds = [pygame.mixer.Sound(f'../sounds/vole{i + 1}.wav') for i in range(3)]
-        self.shooting_sounds = pygame.mixer.Sound('../sounds/shoot.wav')
-        self.background_music = pygame.mixer.Sound('../sounds/background.mp3')
+        self.vole_sounds = [pygame.mixer.Sound(f'./sounds/vole{i + 1}.wav') for i in range(3)]
+        self.shooting_sounds = pygame.mixer.Sound('./sounds/shoot.wav')
+        self.background_music = pygame.mixer.Sound('./sounds/background.mp3')
         self.background_music.set_volume(0.5)
         self.background_music.play(-1)
 
@@ -103,7 +103,7 @@ class Main_Menu:
         pygame.mouse.set_visible(True)  # Make the mouse visible
         
         # Load background image
-        self.background_image = pygame.image.load('../images/homescreen.png')  # Change the path to your image
+        self.background_image = pygame.image.load('./images/homescreen.png')  # Change the path to your image
         self.background_image = pygame.transform.scale(self.background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Scale it to fit the screen
 
         # Load font for title
@@ -142,10 +142,10 @@ class Game:
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption('Protect The Paddy Field')
-        pygame.display.set_icon(pygame.image.load('../images/rice.png'))
+        pygame.display.set_icon(pygame.image.load('./images/rice.png'))
         self.clock = pygame.time.Clock() 
         self.running = True
-        self.background_image = pygame.image.load('../images/background.jpg')
+        self.background_image = pygame.image.load('./images/background.jpg')
         self.background_image = pygame.transform.scale(self.background_image, self.screen.get_size())
         
         self.game_play = None

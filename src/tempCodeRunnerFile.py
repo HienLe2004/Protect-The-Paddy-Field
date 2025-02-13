@@ -1,1 +1,1 @@
-all_sprites
+Game_Over

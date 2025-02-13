@@ -119,33 +119,35 @@ class Game_Play:
                             
             self.game_clock.update()
             if self.game_clock.time_up:
+                print("TIME OUT")
                 self.game_state_manager.set_state('game_over')
                 self.running = False
+                break
 
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE and not self.game_clock.start:
-                        self.game_clock.start_clock()
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                	if event.button == 1:  # Left mouse button
-                    # Check if home button is clicked
-		                if self.home_button.is_clicked(event.pos):
-		                    continue  # Do not proceed further if home button was clicked
-		                # Check if slingshot can shoot
-		                if self.slingshot.can_shoot:
-		                    self.slingshot.shoot()
-		                    hit = False
-		                for rice_plant in self.rice_plant_group:
-		                    if rice_plant.attacker is not None and not rice_plant.attacker.disappear:
-		                        if (rice_plant.attacker.rect.collidepoint(pygame.mouse.get_pos())):
-		                            rice_plant.attacker.dead()
-		                            hit = True
-		                self.shooting_sounds.play()
-		                if hit:
-		                    self.score.set_hit(self.score.hit + 1)
-		                    self.play_vole_dead_sound()
-		                else:
-		                    self.score.set_miss(self.score.miss + 1)
-            self.game_clock.update(dt)
+                # if event.type == pygame.KEYDOWN:
+                #     if event.key == pygame.K_SPACE and not self.game_clock.start:
+                #         self.game_clock.start_clock()
+                # if event.type == pygame.MOUSEBUTTONDOWN:
+                # 	if event.button == 1:  # Left mouse button
+                #     # Check if home button is clicked
+		        #         if self.home_button.is_clicked(event.pos):
+		        #             continue  # Do not proceed further if home button was clicked
+		        #         # Check if slingshot can shoot
+		        #         if self.slingshot.can_shoot:
+		        #             self.slingshot.shoot()
+		        #             hit = False
+		        #         for rice_plant in self.rice_plant_group:
+		        #             if rice_plant.attacker is not None and not rice_plant.attacker.disappear:
+		        #                 if (rice_plant.attacker.rect.collidepoint(pygame.mouse.get_pos())):
+		        #                     rice_plant.attacker.dead()
+		        #                     hit = True
+		        #         self.shooting_sounds.play()
+		        #         if hit:
+		        #             self.score.set_hit(self.score.hit + 1)
+		        #             self.play_vole_dead_sound()
+		        #         else:
+		        #             self.score.set_miss(self.score.miss + 1)
+            # self.game_clock.update(dt)
 
             self.all_sprites.update(dt)
             self.player_sprites.update(dt)
@@ -155,7 +157,7 @@ class Game_Play:
             self.score.draw(self.screen)
             self.game_clock.draw(self.screen)
             self.player_sprites.draw(self.screen)
-            self.home_button.draw(self.screen)  # Draw the home button
+            # self.home_button.draw(self.screen)  # Draw the home button
             pygame.display.update()
     def play_vole_dead_sound(self):
         pygame.time.delay(100)
@@ -198,6 +200,7 @@ class Main_Menu:
 
     def run(self):
         self.draw()
+        pygame.mouse.set_visible(True)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.game_state_manager.set_state('quit')
@@ -209,7 +212,7 @@ class Game:
     def __init__(self):
         self.game_state_manager = Game_State_Manager('main_menu')
         pygame.init()
-        self.game_state_manager = Game_State_Manager('gameplay')
+        # self.game_state_manager = Game_State_Manager('gameplay')
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption('Protect The Paddy Field')
         pygame.display.set_icon(pygame.image.load('./images/rice.png'))
@@ -223,25 +226,25 @@ class Game:
         self.background_image = pygame.transform.scale(self.background_image, self.screen.get_size())
         
 
-    def run(self):
-        while self.running:
-            dt = self.clock.tick(60) / 1000 
-            current_state = self.game_state_manager.get_state()
-            if current_state == 'quit':
-                self.running = False
-            elif current_state == 'gameplay':
-                self.states['gameplay'] = Game_Play(self.screen, self.game_state_manager)
-                self.states['gameplay'].run(dt)
-            elif current_state == 'game_over':
-                score = self.states['gameplay'].score
-                self.states['game_over'] = Game_Over(self.screen, self.game_state_manager, score)
-                self.states['game_over'].run(dt)
-            elif current_state == 'main_menu':
-                self.states['main_menu'].run()
-        pygame.quit()
-        self.game_play = None
-        self.main_menu = Main_Menu(self.screen, self.game_state_manager)
-        self.states = {'main_menu': self.main_menu}
+    # def run(self):
+    #     while self.running:
+    #         dt = self.clock.tick(60) / 1000 
+    #         current_state = self.game_state_manager.get_state()
+    #         if current_state == 'quit':
+    #             self.running = False
+    #         elif current_state == 'gameplay':
+    #             self.states['gameplay'] = Game_Play(self.screen, self.game_state_manager)
+    #             self.states['gameplay'].run(dt)
+    #         elif current_state == 'game_over':
+    #             score = self.states['gameplay'].score
+    #             self.states['game_over'] = Game_Over(self.screen, self.game_state_manager, score)
+    #             self.states['game_over'].run(dt)
+    #         elif current_state == 'main_menu':
+    #             self.states['main_menu'].run()
+    #     pygame.quit()
+    #     self.game_play = None
+    #     self.main_menu = Main_Menu(self.screen, self.game_state_manager)
+    #     self.states = {'main_menu': self.main_menu}
 
     def run(self):
         while self.running:
@@ -253,6 +256,11 @@ class Game:
                 if isinstance(current_state, Main_Menu):
                     current_state.run()
                 elif isinstance(current_state, Game_Play):
+                    current_state.run(dt)
+                elif isinstance(current_state, Game_Over):
+                    print(self.states['gameplay'].score)
+                    current_state.score = self.states['gameplay'].score
+                    # self.states['game_over'] = Game_Over(self.screen, self.game_state_manager, score)
                     current_state.run(dt)
 
                 # Check if we need to switch to gameplay

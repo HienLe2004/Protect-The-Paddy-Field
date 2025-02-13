@@ -30,7 +30,7 @@ class Game_Over:
         for key, rect in self.buttons.items():
             pygame.draw.rect(self.screen, (200, 200, 200), rect)
             button_text = self.font.render(key.upper(), True, (0, 0, 0))
-            self.screen.blit(button_text, (rect.x + 50, rect.y + 10))
+            self.screen.blit(button_text, (rect.x + 80 - 8 * len(key), rect.y + 10))
         
         cursor_pos = pygame.mouse.get_pos()
         cursor_rect = self.cursor_img.get_rect(center=cursor_pos)

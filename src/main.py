@@ -175,6 +175,8 @@ class Main_Menu:
         
         # Load background image
         self.background_image = pygame.image.load('./images/homescreen.png')  # Change the path to your image
+        self.background_slingshot_image = pygame.image.load('./images/slingshot (1).png')
+        self.background_slingshot_image = pygame.transform.scale(self.background_slingshot_image, (300,350))
         self.background_image = pygame.transform.scale(self.background_image, (SCREEN_WIDTH, SCREEN_HEIGHT))  # Scale it to fit the screen
 
         # Load font for title
@@ -183,6 +185,7 @@ class Main_Menu:
     def draw(self):
         # Draw the background image
         self.screen.blit(self.background_image, (0, 0))
+        self.screen.blit(self.background_slingshot_image, (100,380))
         
         # Draw the game title
         title_surface = self.title_font.render('Protect The Paddy Field', True, (0, 0, 0))  # Black text
